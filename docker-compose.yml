@@ -1,0 +1,47 @@
+version: "3.7"
+
+services:
+  multi-node-filter:
+    container_name: multi-node-filter
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: multi-node-filter
+#    ports:
+      # - "$PORT:$PORT"
+    env_file: .env
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PREFIX=PREFIX
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGODB_ROOT_PASSWORD=password123
+    restart: always
+    depends_on:
+      - redis
+      - mongodb
+
+  redis:
+    image: 'docker.io/bitnami/redis:6.0-debian-10'
+    container_name: redis
+    restart: on-failure
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '6379:6379'
+
+  mongodb:
+    image: docker.io/bitnami/mongodb:4.4
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - 'mongodb_data:/bitnami/mongodb'
+    environment:
+      - MONGODB_ROOT_PASSWORD=password123
+
+
+volumes:
+  mongodb_data:
+    driver: local
